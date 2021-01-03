@@ -52,15 +52,15 @@ unix:!macx: LIBS += -Wall -lncursesw -lmenuw -lformw -lpanelw -pthread -lsystemd
 ###########################################################################
 
 SOURCES += \
-        src/MenuClass.cpp \
-        src/ServiceClass.cpp \
-        src/Start.cpp \
-        src/TaskClass.cpp \
-        src/WinClass.cpp
+        MenuClass.cpp \
+        ServiceClass.cpp \
+        Start.cpp \
+        TaskClass.cpp \
+        WinClass.cpp
 
 HEADERS += \
-    src/Info.h \
-    src/MenuClass.h \
-    src/ServiceClass.h \
-    src/TaskClass.h \
-    src/WinClass.h
+    Info.h \
+    MenuClass.h \
+    ServiceClass.h \
+    TaskClass.h \
+    WinClass.h
