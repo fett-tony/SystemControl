@@ -1,4 +1,5 @@
-# SystemControl
+# ServiceControl
+
 systemctl is the basic.
 
 chkservice can be installed on Ubuntu with:
