@@ -20,8 +20,9 @@ https://github.com/hflautert/chkservices
 
 https://github.com/linuxenko/chkservice
 
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControll-v1.0.2.png)
+![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/ServiceControl_v1.0.4/Screenshot/ServiceControl_v1.0.4.png)
 
+![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/ServiceControl_v1.0.4/Screenshot/ServiceControl_v1.0.4_2.png)
 
 # 1. The first option is Shadowbuild Must Off.
 
@@ -43,8 +44,3 @@ you must set "handle SIGSTOP pass nostop noprint" into the Debugger option for "
 ![Debugging_Helper_Customization](https://github.com/fett-tony/NcursesWindowTemplate/blob/main/README/Debugging_Helper_Customization.png)
 
 
-
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-1.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-2.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-3.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControll-branch.png)
