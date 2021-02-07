@@ -1,12 +1,14 @@
 # ServiceControl
 
-systemctl is the basic. ServiceControl this is a Qt creator project!
+chkservice is the basis for ServiceControl.
 
-also download Qt Creator.
+This is a Qt Creator project!
 
-This is a Qt Creator Projekt for run you musst set two options.
+Also download Qt Creator.
 
-That is the clock jump of my development and also consists of parts of this preliminary work.
+You need to set two options before you can begin.
+
+That is the clock leap in my development and also consists of parts of this preliminary work.
 
 chkservice can be installed on Ubuntu with:
 
