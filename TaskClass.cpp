@@ -8,9 +8,7 @@
 using namespace std;
 
 TaskClass *TaskClass_TC = new TaskClass();
-//MenuClass *MenuPtr_TC = new MenuClass();
 ServiceClass *ServiceClass_TC = new ServiceClass();
-//WinClass *WinPtr_TC = new WinClass();
 MenuWinClass *MenuWinClass_TC = new MenuWinClass();
 
 volatile int signal_flag;

@@ -76,8 +76,7 @@ void ServiceClass::ServiceListe(){
     int mcols = 0;
     unsigned long count = ServiceList.size();
     MenuWinClass_SC->SERVICEMENU.LMItem = static_cast<ITEM **>(calloc(count, sizeof(ITEM *)));
-    for (unsigned long i = 0; i < (count-2); i++)
-    {
+    for (unsigned long i = 0; i < (count-2); i++) {
         MenuWinClass_SC->SERVICEMENU.LMItem[i] = new_item(ServiceList[i].Name.c_str(), ServiceList[i].Status.c_str());
     }
     MenuWinClass_SC->SERVICEMENU.LMItem[count-1] = nullptr;
@@ -251,8 +250,10 @@ void ServiceClass::Statusabfrage(string ausgabestatus) {
     if (STATUSWIN){werase(STATUSWIN);delwin(STATUSWIN);}
     redrawwin(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin2));
     wrefresh(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin2));
+    touchwin(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin2));
     redrawwin(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin3));
     wrefresh(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin3));
+    touchwin(TaskClass_SC->ClearWindow(MenuWinClass::START.TMPWin3));
     prefresh(MenuWinClass_SC->START.TMPWin4, 0, 0, 2, 1, MenuWinClass_SC->START.HRYw4() + 1, MenuWinClass_SC->START.WCXw4());
     prefresh(MenuWinClass_SC->START.TMPWin5, 0, 0, MenuWinClass_SC->START.HRY()-4, MenuWinClass_SC->START.WCX()-46, MenuWinClass_SC->START.HRYw5(), MenuWinClass_SC->START.WCXw5());
 }
@@ -375,13 +376,13 @@ void ServiceClass::TableMoveRow() { //drawUnits
     }
     //  const int oneX = unit->sub & A_COLOR;
     for (int i = 0; i < MenuWinClass_SC->START.HRYw4(); i++) {
-        if ((i + ServiceClass::start) > static_cast<int>(ServiceList.size() - 1)) {
+        if ((i + ServiceClass::ListStart) > static_cast<int>(ServiceList.size() - 1)) {
             break;
         }
-        SERVICES unit = ServiceList[static_cast<unsigned long>(start + i)];
+        SERVICES unit = ServiceList[static_cast<unsigned long>(ListStart + i)];
         if (i == selected) {
             StateColor.SetSignalColor(17, 37, 27, 87);
-            MenuWinClass::SERVICEMENU.AktivName = ServiceList[static_cast<unsigned long>(start + selected)].Name;
+            MenuWinClass::SERVICEMENU.AktivName = ServiceList[static_cast<unsigned long>(ListStart + selected)].Name;
             wattron(MenuWinClass_SC->START.TMPWin4, COLOR_PAIR(87)|A_BOLD);
         }
         TableDraw(unit, i);
@@ -538,29 +539,30 @@ void ServiceClass::TableDraw(SERVICES unit, int y) {
 }
 void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
     int ps = MenuWinClass_SC->START.HRYw4()-1;
+//    string Dummy = Dummy.assign(40 ,' ');
     switch(key){
     case REQ_LEFT_ITEM:{
         break;}
     case REQ_RIGHT_ITEM:{
         break;}
     case REQ_UP_ITEM:{
-        if (start > 0 && selected < ps) { // / 2
-            start--;
+        if (ListStart > 0 && selected < ps) { // / 2
+            ListStart--;
         } else if (selected > 0) {
             selected--;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_UP_ITEM);
         }
         break;}
     case REQ_DOWN_ITEM:{
-        int offset = start + selected;
+        int offset = ListStart + selected;
         int max = static_cast<int>(SRVLIST.size());
-        if ((start + ps) < max) {
+        if ((ListStart + ps) < max) {
             if (selected < ps) { // / 2
                 selected++;
             } else {
-                start++;
+                ListStart++;
             }
         } else if (offset < max) {
             selected++;
@@ -568,7 +570,7 @@ void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
         if (offset >= max) {
             selected = ps;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_DOWN_ITEM);
         }
         break;}
@@ -577,67 +579,67 @@ void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
     case REQ_SCR_DLINE:{
         break;}
     case REQ_SCR_UPAGE:{
-        if (start > 0) {
-            start -= ps;
+        if (ListStart > 0) {
+            ListStart -= ps;
         }
-        if (start < 0) {
-            start = 0;
+        if (ListStart < 0) {
+            ListStart = 0;
             selected = 0;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_UP_ITEM);
         }
         break;}
     case REQ_SCR_DPAGE:{
         int max = static_cast<int>(SRVLIST.size()-1);
-        if ((start + ps) < max) { // / 2
-            start += ps;
+        if ((ListStart + ps) < max) { // / 2
+            ListStart += ps;
         }
-        if ((start + ps) > max) {
-            start = max - ps;
+        if ((ListStart + ps) > max) {
+            ListStart = max - ps;
             selected = ps;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_DOWN_ITEM);
         }
         break;}
     case REQ_FIRST_ITEM:{
-        if (start > 0 && selected < ps) { // / 2
-            start--;
+        if (ListStart > 0 && selected < ps) { // / 2
+            ListStart--;
         } else if (selected > 0) {
             selected--;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_UP_ITEM);
         }
         break;}
     case REQ_LAST_ITEM:{
         int max = static_cast<int>(SRVLIST.size()-1);
-        start = max - ps;
+        ListStart = max - ps;
         selected = ps;
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_UP_ITEM);
         }
         break;}
     case REQ_NEXT_ITEM:{
-        if (start > 0 && selected < ps) { // / 2
-            start--;
+        if (ListStart > 0 && selected < ps) { // / 2
+            ListStart--;
         } else if (selected > 0) {
             selected--;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_UP_ITEM);
         }
         break;}
     case REQ_PREV_ITEM:{
-        int offset = start + selected;
+        int offset = ListStart + selected;
         int max = static_cast<int>(SRVLIST.size());
 
-        if ((start + ps) < max) {
+        if ((ListStart + ps) < max) {
             if (selected < ps) { // / 2
                 selected++;
             } else {
-                start++;
+                ListStart++;
             }
         } else if (offset < max) {
             selected++;
@@ -645,7 +647,7 @@ void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
         if (offset >= max) {
             selected = ps;
         }
-        if (SRVLIST[static_cast<unsigned long>(start + selected)].Name.empty()) {
+        if (SRVLIST[static_cast<unsigned long>(ListStart + selected)].Name.empty()) {
             ServiceClass::TableDriver(SRVLIST,REQ_DOWN_ITEM);
         }
         break;}
@@ -654,15 +656,15 @@ void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
     case REQ_CLEAR_PATTERN:{
         break;}
     case REQ_BACK_PATTERN:{
-        if (MenuWinClass_SC->PATTERN.size()>0) {MenuWinClass_SC->PATTERN.pop_back(); MenuWinClass_SC->PATTERN.shrink_to_fit();};
+        if (MenuWinClass_SC->SearchPattern.size()>0) {MenuWinClass_SC->SearchPattern.pop_back(); MenuWinClass_SC->SearchPattern.shrink_to_fit();};
         mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, "                      ",-1);
-        mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->PATTERN.c_str(),-1);
+        mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->SearchPattern.c_str(),-1);
         break;}
     case REQ_NEXT_MATCH:{
         int position = 0;
         for (auto unit : ServiceList) {
             if (!unit.Name.empty()) {
-                if (unit.Name.rfind(MenuWinClass_SC->PATTERN.c_str()) != std::string::npos) {
+                if (unit.Name.rfind(MenuWinClass_SC->SearchPattern.c_str()) != std::string::npos) {
                     lastFound = position;
                     moveTo(position); }
                 position++;
@@ -671,7 +673,7 @@ void ServiceClass::TableDriver(std::vector<SERVICES> SRVLIST,int key){
             }
         }
         if (lastFound == 0) {
-            MenuWinClass_SC->PATTERN.clear();
+            MenuWinClass_SC->SearchPattern.clear();
             return;
         }
         lastFound = 0;
@@ -686,7 +688,7 @@ void ServiceClass::searchInput() {
     while ((key=wgetch(stdscr)) != KEY_F(10)) {
         switch(key) {
         case 27:{ // ESC
-            MenuWinClass_SC->PATTERN.clear();
+            MenuWinClass_SC->SearchPattern.clear();
             mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, "                      ",-1);
             break;}
         case KEY_ENTER: // Ctrl-M
@@ -694,16 +696,16 @@ void ServiceClass::searchInput() {
             TableDriver(ServiceList,REQ_NEXT_MATCH);
             break;}
         case KEY_BACKSPACE:{
-            if (MenuWinClass_SC->PATTERN.size()>0) {MenuWinClass_SC->PATTERN.pop_back(); MenuWinClass_SC->PATTERN.shrink_to_fit();};
+            if (MenuWinClass_SC->SearchPattern.size()>0) {MenuWinClass_SC->SearchPattern.pop_back(); MenuWinClass_SC->SearchPattern.shrink_to_fit();};
             mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, "                      ",-1);
-            mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->PATTERN.c_str(),-1);
+            mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->SearchPattern.c_str(),-1);
             TableDriver(ServiceList,REQ_NEXT_MATCH);
             break;}
         default:{
             if (key > 10 && key < 128) {
-                sprintf(searchString,"%c",key);
-                MenuWinClass_SC->PATTERN.append(string(searchString));
-                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->PATTERN.c_str(),-1);
+                sprintf(MenuWinClass_SC->SearchChar,"%c",key);
+                MenuWinClass_SC->SearchPattern.append(string(MenuWinClass_SC->SearchChar));
+                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->SearchPattern.c_str(),-1);
                 TableDriver(ServiceList,REQ_NEXT_MATCH);
             }
             break;}
@@ -721,73 +723,80 @@ void ServiceClass::drawSearch() {
     /*  * Lets indicate it is a search input   */
     char text[BUFSIZ] = "";
     if (lastFound == 0) {
-        sprintf(searchString,"%s",text);
-        MenuWinClass_SC->PATTERN.append(string(searchString));
+        sprintf(MenuWinClass_SC->SearchChar,"%s",text);
+        MenuWinClass_SC->SearchPattern.append(string(MenuWinClass_SC->SearchChar));
         //sprintf(text, "%s%s", text, searchString);
     }
     /*   * Draw it using any visible, light color   */
     //drawStatus(1, text, 0);
-    mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->PATTERN.c_str(),-1);
+    mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_SC->SearchPattern.c_str(),-1);
 }
 void ServiceClass::moveTo(int position) {
-    start = selected = 0;
+    ListStart = selected = 0;
     for (int i = 0; i < position; i++) {
         TableDriver(ServiceList,REQ_UP_ITEM);
     }
 }
 
 string ServiceClass::SearchDriver(SeaReq drv, WINDOW *Win, int Key, string Search, int Posi) {
-    static const int Start = 33;
-    int hry, wcx;
-    getyx(Win, hry, wcx);
-    int MaxSearchTextLaenge = (MenuWinClass::START.WCX() - (Start + MenuWinClass::START.BorderWeight));
+    int wcx = getcurx(Win);
+    int MaxSearchChar = (MenuWinClass::START.WCX() - (MenuWinClass::SucheStartWCX + MenuWinClass::START.BorderWeight));
     int Laenge = Search.length();
-    int AbsolPosi;
-    AbsolPosi = (Start + Posi);
-    char TmpKey[BUFSIZE] = "";
+    int AbsolPosi = (MenuWinClass::SucheStartWCX + Posi);
+    int AbsolSuchWort = (MenuWinClass::SucheStartWCX + Laenge);
+    MenuWinClass_SC->Dummy.assign(MaxSearchChar, ' ');
+    char TmpKey[BUFSIZE];
     sprintf(TmpKey, "%c", Key);
-    string dummi;
-    dummi.assign(MaxSearchTextLaenge,' ');
     switch (drv) {
     case REQ_DEL_BACKSPACE:{
-        if ((wcx > Start) && (wcx <= (Start + Laenge))) {
-            Search.erase(Posi-1, 1);
-            mvwaddnstr(Win, 4, Start, dummi.c_str(), -1);
-            mvwaddnstr(Win, 4, Start, Search.c_str(), -1);
-            wmove(Win, 4, AbsolPosi - 1);
+        if ((wcx > MenuWinClass_SC->SucheStartWCX) && (wcx <= (MenuWinClass_SC->SucheStartWCX + Laenge))) {
+            if (Laenge > 0) {
+                int del = (Posi - 1);
+                Search.erase(del, 1);
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, MenuWinClass_SC->Dummy.c_str(), -1);
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, Search.c_str(), -1);
+                wmove(Win, 4, AbsolPosi -1);
+            }
         }
         break; }
     case REQ_DEL_DC:{
-        if ((wcx > Start) && (wcx < (Start + Laenge))) {
-            Search.erase(Posi+1, 1);
-            mvwaddnstr(Win, 4, Start, dummi.c_str(), -1);
-            mvwaddnstr(Win, 4, Start, Search.c_str(), -1);
-            wmove(Win, 4, AbsolPosi - 1);
+        if ((wcx > MenuWinClass_SC->SucheStartWCX) && (wcx < (MenuWinClass_SC->SucheStartWCX + Laenge))) {
+            if (Laenge > 0) {
+                int del = (Posi);
+                Search.erase(del, 1);
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, MenuWinClass_SC->Dummy.c_str(), -1);
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, Search.c_str(), -1);
+                wmove(Win, 4, AbsolPosi);
+            }
         }
         break; }
     case REQ_RIGHT:{
-        if ((wcx > Start) && (wcx <= (Start + Laenge))) {
-        //if ((Posi != 0) || ((Posi-1) <= Laenge)) {
-            int cursorbewegen = AbsolPosi +1;
-            wmove(Win, 4, cursorbewegen);
+        if ((wcx > MenuWinClass_SC->SucheStartWCX) && (wcx <= (MenuWinClass_SC->SucheStartWCX + Laenge))) {
+            if ((AbsolPosi + 1) <= AbsolSuchWort) {
+                int cursorbewegen = AbsolPosi +1;
+                wmove(Win, 4, cursorbewegen);
+            }
         }
         break; }
     case REQ_LEFT:{
-        if ((wcx > Start) && (wcx <= (Start + Laenge))) {
-        //if ((Posi != 0) || ((Posi-1) <= Laenge)) {
-            int cursorbewegen = AbsolPosi -1;
-            wmove(Win, 4, cursorbewegen);
+        if ((wcx > MenuWinClass_SC->SucheStartWCX) && (wcx <= (MenuWinClass_SC->SucheStartWCX + Laenge))) {
+            if (AbsolPosi <= AbsolSuchWort) {
+                int cursorbewegen = AbsolPosi -1;
+                wmove(Win, 4, cursorbewegen);
+            }
         }
         break; }
     case REQ_INS_DEFAULT:{
-        if (Key > 10 && Key < 128) {
+        if ((Key > 32 && Key < 126)) {
+        // || (Key == 195 || Key == 182 || Key == 150 || Key == 164 || Key == 132 || Key == 188 || Key == 156)){
+        //if (Key > 32 && Key < 126) {
             if (Posi < Laenge) {
                 Search.insert(Posi, string(TmpKey));
-                mvwaddnstr(Win, 4, Start, Search.c_str(), -1);
-                wmove(Win, 4, (Start + Posi));
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, Search.c_str(), -1);
+                wmove(Win, 4, (MenuWinClass_SC->SucheStartWCX + Posi));
             } else {
                 Search.append(string(TmpKey));
-                mvwaddnstr(Win, 4, Start, Search.c_str(), -1);
+                mvwaddnstr(Win, 4, MenuWinClass_SC->SucheStartWCX, Search.c_str(), -1);
             }
         };
         break;}
@@ -796,10 +805,9 @@ string ServiceClass::SearchDriver(SeaReq drv, WINDOW *Win, int Key, string Searc
     return Search;
 }
 /*##################################################################################*/
+
 ServiceClass::ServiceClass(){
     systemctlwahl = "service";
 }
-ServiceClass::~ServiceClass(){
-
-}
+ServiceClass::~ServiceClass(){ }
 /*##################################################################################*/

@@ -14,15 +14,21 @@
 #include <thread>
 #include <cstring>
 #include <string>
-#include <cstdio>
+#include <stdio.h>
 #include <unistd.h>
 #include <cmath>
 #include <vector>
 #include <locale.h>
-#include <systemd/sd-bus-vtable.h>
-#include <systemd/sd-bus.h>
 #include <term.h>
 
+#include <cassert>
+#include <set>
+#include <systemd/sd-bus-vtable.h>
+#include <systemd/sd-bus.h>
+
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
 //#define CTRLD 4
 #define BUFSIZE 8192
 #define CLEARSCR system ( "clear" )
@@ -31,6 +37,7 @@
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p); (p) = nullptr; } }
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define SIZEOF(table) (sizeof(table) / sizeof(table[0]))
+#define VARNAME(name) #name
 #define RST   "\x1B[0m";
 #define KRED  "\x1B[31m";
 #define KGRN  "\x1B[32m";

@@ -1,4 +1,4 @@
- #include <MenuWinClass.h>
+﻿ #include <MenuWinClass.h>
 
 using namespace std;
 
@@ -8,17 +8,11 @@ MenuWinClass *MenuWinClass_MWC = new MenuWinClass();
 
 FENSTER MenuWinClass::START;
 HAUPTMENU MenuWinClass::TOPMENU;
-WINDOW* MenuWinClass::TMPWIN;
-MENU* MenuWinClass::TMPMENU;
-int MenuWinClass::MeInAl = 0;
 INAPPMENU MenuWinClass::SERVICEMENU;
-int MenuWinClass::LiMeInAl;
-WINDOW* MenuWinClass::LiTMPWIN;
-MENU* MenuWinClass::LiTMPMENU;
-string MenuWinClass::PATTERN;
+
 ServiceClass ServiceClass;
 vector<SERVICES> ServiceList;
-int MenuWinClass::TabKey = 1;
+TabID MenuWinClass::TabKey = MainTab1;
 
 WinID&   operator++(WinID&   WID, int)      {
     return WID = (WID == WinID::ENDWIN) ? WinID::MAINWIN : static_cast<WinID>(static_cast<int>(WID) + 1);
@@ -38,7 +32,19 @@ MenuID&  operator--(MenuID&  MID, int)      {
 };
 ostream& operator<<(ostream& MID, MenuID e) {
     static const vector<string> EnumString = {"DATEIMENU", "DAEMONMENU", "SYSTEMCTLMENU", "INFOMENU", "MAINMENU", "ENDMENU"};
+//    char test[1000];
+//    sprintf(test, "%c", EnumString[static_cast<MenuID>(e)].c_str());
     return MID << EnumString[static_cast<MenuID>(e)];
+};
+TabID&   operator++(TabID&   TID, int)      {
+    return TID = (TID == TabID::MainTab3) ? TabID::MainTab1 : static_cast<TabID>(static_cast<int>(TID) + 1);
+};
+TabID&   operator--(TabID&   TID, int)      {
+    return TID = (TID == TabID::MainTab3) ? TabID::MainTab1 : static_cast<TabID>(static_cast<int>(TID) - 1);
+};
+ostream& operator<<(ostream& TID, TabID e)  {
+    static const vector<string> EnumString = {"MainTab1", "MainTab2", "MainTab3"};
+    return TID << EnumString[static_cast<TabID>(e)];
 };
 
 MenuWinClass::MenuWinClass() {
@@ -253,10 +259,22 @@ void MenuWinClass::CreateWin(WINDOW* win, WinID WID) {
         break;
     }
     case ENDWIN: { break; }
-    default: { break; }
     }
-    refresh();
-    wrefresh(win);
+    if (is_pad(win) == true) {
+        string tmpname = string(VARNAME(win));
+        if (tmpname == "MenuWinClass::START.TMPWin4") {
+            refresh();
+            prefresh(MenuWinClass::START.TMPWin4, 0, 0, 2, 1, MenuWinClass::START.HRYw4() + 1, MenuWinClass::START.WCXw4());
+        } else if (tmpname == "MenuWinClass::START.TMPWin5") {
+            refresh();
+            //prefresh(MenuWinClass::START.TMPWin5, 0, 0, MenuWinClass::START.HRY()-4,
+            //         MenuWinClass::START.WCX()-46, MenuWinClass::START.HRYw5(), MenuWinClass::START.WCXw5());
+            wrefresh(MenuWinClass::START.TMPWin5);
+        }
+    } else {
+        refresh();
+        wrefresh(win);
+    }
 } /*---------Fenster_Erzeugen-----------------------*/
 void MenuWinClass::ResizeHandler(int signal) {
     UNUSED(signal);
@@ -268,6 +286,7 @@ void MenuWinClass::ResizeHandler(int signal) {
     MenuWinClass::CreateWin(MenuWinClass::START.TMPWin3, INFOWIN);
     MenuWinClass::CreateWin(MenuWinClass::START.TMPWin4, LISTPAD);
     MenuWinClass::CreateWin(MenuWinClass::START.TMPWin5, DESCWIN);
+    MenuWinClass::RefreshWindows();
 } /*---------Resize_Fenster_neu_Erzeugen----------------*/
 void MenuWinClass::ScrollPad(WINDOW* SubWin, int StartY, int StartX, int Height, int Width, int PadHeight) {
     int Choice = 0, Key = 0;
@@ -357,12 +376,12 @@ void MenuWinClass::FensterDraw() {
 }
 void MenuWinClass::Hauptmenu(void) {
     MenuWinClass::TOPMENU.MID = MAINMENU;
-    MenuWinClass::TOPMENU.HMName = string("HAUPTMENÜ");
+    MenuWinClass::TOPMENU.HMName = string("MAINMENU");
     MenuWinClass::TOPMENU.HMItem = static_cast<ITEM**>(calloc(5, sizeof(ITEM*)));
-    MenuWinClass::TOPMENU.HMItem[0] = new_item(" Datei", MenuWinClass::TOPMENU.HMName.c_str());
-    MenuWinClass::TOPMENU.HMItem[1] = new_item("DaemonType", MenuWinClass::TOPMENU.HMName.c_str());
-    MenuWinClass::TOPMENU.HMItem[2] = new_item("Systemctl", MenuWinClass::TOPMENU.HMName.c_str());
-    MenuWinClass::TOPMENU.HMItem[3] = new_item("Info", MenuWinClass::TOPMENU.HMName.c_str());
+    MenuWinClass::TOPMENU.HMItem[0] = new_item(" Datei", "DATEIMENU");
+    MenuWinClass::TOPMENU.HMItem[1] = new_item("DaemonType", "DAEMONMENU");
+    MenuWinClass::TOPMENU.HMItem[2] = new_item("Systemctl", "SYSTEMCTLMENU");
+    MenuWinClass::TOPMENU.HMItem[3] = new_item("Info", "INFOMENU");
     MenuWinClass::TOPMENU.HMItem[4] = nullptr;
     MenuWinClass::TOPMENU.HMMenu = new_menu(MenuWinClass::TOPMENU.HMItem);
     MenuWinClass::START.TMPWin1 = newwin(MenuWinClass::START.HRYw1(), MenuWinClass::START.WCXw1(), 0, 0);
@@ -384,7 +403,7 @@ void MenuWinClass::Hauptmenu(void) {
 } /* Hauptmenü */
 void MenuWinClass::DateiMenu(void) {
     TOPMENU.UME.UMID = 1;
-    TOPMENU.UME.UMEName = string("Datei");
+    TOPMENU.UME.UMEName = string("DATEIMENU");
     TOPMENU.UME.UMEWin = newwin(6, 15, 1, 0);
     wbkgd(TOPMENU.UME.UMEWin, COLOR_PAIR(TOPMENU.MenuColor.BK_UNTERMENU));
     box(TOPMENU.UME.UMEWin, 0, 0);
@@ -410,7 +429,7 @@ void MenuWinClass::DateiMenu(void) {
 } /* Datei Untermenü */
 void MenuWinClass::DaemonTypeMenu(void) {
     TOPMENU.UME.UMID = 2;
-    TOPMENU.UME.UMEName = string("DaemonType");
+    TOPMENU.UME.UMEName = string("DAEMONMENU");
     TOPMENU.UME.UMEWin = newwin(12, 10, 1, 11);
     box(TOPMENU.UME.UMEWin, 0, 0);
     TOPMENU.UME.UMEItem = static_cast<ITEM**>(calloc(11, sizeof(ITEM*)));
@@ -442,7 +461,7 @@ void MenuWinClass::DaemonTypeMenu(void) {
 } /* DaemonType Untermenü */
 void MenuWinClass::SystemctlMenu(void) {
     TOPMENU.UME.UMID = 3;
-    TOPMENU.UME.UMEName = string("Systemctl");
+    TOPMENU.UME.UMEName = string("SYSTEMCTLMENU");
     TOPMENU.UME.UMEWin = newwin(12, 18, 1, 22);
     box(TOPMENU.UME.UMEWin, 0, 0);
     TOPMENU.UME.UMEItem = static_cast<ITEM**>(calloc(11, sizeof(ITEM*)));
@@ -474,7 +493,7 @@ void MenuWinClass::SystemctlMenu(void) {
 } /* Systemctl Untermenü */
 void MenuWinClass::InfoMenu(void) {
     TOPMENU.UME.UMID = 4;
-    TOPMENU.UME.UMEName = string("Info");
+    TOPMENU.UME.UMEName = string("INFOMENU");
     TOPMENU.UME.UMEWin = newwin(5, 12, 1, 33);
     wbkgd(TOPMENU.UME.UMEWin, COLOR_PAIR(TOPMENU.MenuColor.BK_UNTERMENU));
     box(TOPMENU.UME.UMEWin, 0, 0);
@@ -501,25 +520,25 @@ WINDOW* MenuWinClass::TempWin(string Name, MenuID MID) {
     if ((Name.compare(" Datei") == 0) || (MID == DATEIMENU)) {
         //MenuWinClass::CreateMenu(MenuWinClass::TOPMENU.UME.UMEWin, MenuWinClass::TOPMENU.UME.UMEMenu, DATEIMENU, "DATEIMENU");
         MenuWinClass::DateiMenu();
-        MenuWinClass::TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
-        MenuWinClass::TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
+        MenuWinClass::START.TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
+        MenuWinClass::TOPMENU.TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
     } else if ((Name.compare("DaemonType") == 0) || (MID == DAEMONMENU)) {
         //MenuWinClass::CreateMenu(MenuWinClass::TOPMENU.UME.UMEWin, MenuWinClass::TOPMENU.UME.UMEMenu, SYSTEMMENU, "SYSTEMMENU");
         MenuWinClass::DaemonTypeMenu();
-        MenuWinClass::TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
-        MenuWinClass::TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
+        MenuWinClass::START.TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
+        MenuWinClass::TOPMENU.TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
     } else if ((Name.compare("Systemctl") == 0) || (MID == SYSTEMCTLMENU)) {
         //MenuWinClass::CreateMenu(MenuWinClass::TOPMENU.UME.UMEWin, MenuWinClass::TOPMENU.UME.UMEMenu, SERVERMENU, "SERVERMENU");
         MenuWinClass::SystemctlMenu();
-        MenuWinClass::TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
-        MenuWinClass::TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
+        MenuWinClass::START.TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
+        MenuWinClass::TOPMENU.TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
     } else if ((Name.compare("Info") == 0) || (MID == INFOMENU)) {
         //MenuWinClass::CreateMenu(MenuWinClass::TOPMENU.UME.UMEWin, MenuWinClass::TOPMENU.UME.UMEMenu, SOFTWAREMENU, "SOFTWAREMENU");
         MenuWinClass::InfoMenu();
-        MenuWinClass::TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
-        MenuWinClass::TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
+        MenuWinClass::START.TMPWIN = MenuWinClass::TOPMENU.UME.UMEWin;
+        MenuWinClass::TOPMENU.TMPMENU = MenuWinClass::TOPMENU.UME.UMEMenu;
     }
-    return MenuWinClass::TMPWIN;
+    return MenuWinClass::START.TMPWIN;
 } /* Menü und Win Neuzuordnen */
 void MenuWinClass::StartMenuAuswahl(string wahl) {
     string menupoint = MenuWinClass::SERVICEMENU.AktivName;
@@ -533,52 +552,52 @@ void MenuWinClass::StartMenuAuswahl(string wahl) {
     } else if (wahl.compare("Systemctl") == 0) {
         InfoMenu();
     } else if (wahl.compare("Service") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "service";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Swap") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "swap";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Timer") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "timer";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Device") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "device";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Mount") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "mount";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Path") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "path";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Target") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "target";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Socket") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "socket";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Slice") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "slice";
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("Scope") == 0) {
-        ServiceClass_MWC->start = 0;
+        ServiceClass_MWC->ListStart = 0;
         ServiceClass_MWC->selected = 0;
         ServiceClass_MWC->systemctlwahl = "scope";
         ServiceClass_MWC->ServiceListFill();
@@ -595,7 +614,7 @@ void MenuWinClass::StartMenuAuswahl(string wahl) {
         exit(EXIT_SUCCESS);
     } else if (wahl.compare("START") == 0) {
         pos_menu_cursor(MenuWinClass::SERVICEMENU.LMenu);
-        befehl = "systemctl start " + menupoint + " --now";
+        befehl = "systemctl ListStart " + menupoint + " --now";
         TaskClass_MWC->TERM_AUSGABE(befehl);
         ServiceClass_MWC->ServiceListFill();
     } else if (wahl.compare("STOP") == 0) {
@@ -644,6 +663,7 @@ void MenuWinClass::StartMenuAuswahl(string wahl) {
 } /* MenüPoint to command */
 void MenuWinClass::RefreshWindows(){
     refresh();
+    redrawwin(MenuWinClass::START.TMPWin1);
     wrefresh(MenuWinClass::START.TMPWin1);
     redrawwin(MenuWinClass::START.TMPWin2);
     wrefresh(MenuWinClass::START.TMPWin2);
@@ -658,242 +678,253 @@ void MenuWinClass::RefreshWindows(){
 }
 
 int MenuWinClass::MenuStart(int Key) {
-//try {
-        set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[MenuWinClass::MeInAl]);
-        TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)), (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
-        string tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
-        string MeAuWa = "";
-        ServiceClass_MWC->TableMoveRow();
-        while ((Key = wgetch(stdscr)) != KEY_F(10)) {
-            switch (MenuWinClass::TabKey) {
-            case 1: {
-                switch (Key) {
-                case '?': { ServiceClass_MWC->Statusabfrage(ABOUT_INFO); break; }
-                case 27: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(1, "++", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case KEY_DOWN: {
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_DOWN_ITEM);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case KEY_UP: {
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_UP_ITEM);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case KEY_NPAGE: {
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_SCR_DPAGE);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case KEY_PPAGE: {
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_SCR_UPAGE);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case KEY_END: {
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_LAST_ITEM);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case KEY_HOME: {
-                    ServiceClass_MWC->start = 0;
-                    ServiceClass_MWC->selected = 0;
-                    ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_FIRST_ITEM);
-                    ServiceClass_MWC->TableMoveRow();
-                    break;
-                }
-                case 0x09: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(1, "++", 3);
-                    TMPWIN = TempWin("Datei", DATEIMENU);
-                    redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
-                    wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
-                    break;
-                }
-                case KEY_BTAB: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(1, "--", 3);
-                    TMPWIN = TempWin("Datei", DATEIMENU);
-                    redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
-                    wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
-                    break;
-                }
-                case KEY_BACKSPACE: { ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_BACK_PATTERN); break; }
-                case 10: {
-                    string menupoint = MenuWinClass::SERVICEMENU.AktivName;
-                    string befehl = "systemctl status " + menupoint;
-                    ServiceClass_MWC->Statusabfrage(TaskClass_MWC->TERM_AUSGABE(befehl));
-                    break; }
-                case 32: { ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_TOGGLE_ITEM); break; }
-                default: { if (Key > 10 && Key < 128) {
-                        //ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_NEXT_MATCH);
-                    }
-                break;}
-                }
-                if (MenuWinClass_MWC->TabKey == 1) {
-                    curs_set(false);
-                    ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    MenuWinClass::RefreshWindows();
-                } else if (MenuWinClass_MWC->TabKey == 2) {
-                    curs_set(false);
-                    MenuWinClass::RefreshWindows();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
-                    wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
-                } else if (MenuWinClass_MWC->TabKey == 3) {
-                    curs_set(true);
-                    mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass::PATTERN.c_str(), -1);
-                    MenuWinClass::RefreshWindows();
-                }
+    //try {
+    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[MenuWinClass::TOPMENU.MeInAl]);
+    MenuWinClass::START.TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)),
+                                         (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
+    string tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
+    string MeAuWa = "";
+    ServiceClass_MWC->TableMoveRow();
+    while ((Key = wgetch(stdscr)) != KEY_F(10)) {
+        switch (MenuWinClass::TabKey) {
+        case MainTab1: {
+            switch (Key) {
+            case '?': { ServiceClass_MWC->Statusabfrage(HELP_INFO); break; }
+            case 353: {
+                MenuWinClass_MWC->TabKey--;
+                //MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(1, "--", 3);
+                MenuWinClass::START.TMPWIN = TempWin("Datei", DATEIMENU);
+                redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
+                wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
                 break;
-            } /* MainWindow ListMenu */
-            case 2: {
-                switch (Key) {
-                case '?': { ServiceClass_MWC->Statusabfrage(ABOUT_INFO); break; }
-                case 27: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "++", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case KEY_DOWN: { menu_driver(TOPMENU.UME.UMEMenu, REQ_DOWN_ITEM); break; }
-                case KEY_UP: { menu_driver(TOPMENU.UME.UMEMenu, REQ_UP_ITEM); break; }
-                case KEY_RIGHT: {
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    menu_driver(MenuWinClass::TOPMENU.HMMenu, REQ_RIGHT_ITEM);
-                    tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
-                    TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)), (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
-                    break;
-                }
-                case KEY_LEFT: {
-                    MenuWinClass::TOPMENU.LoescheUME(); // delete before menu drive
-                    menu_driver(MenuWinClass::TOPMENU.HMMenu, REQ_LEFT_ITEM);
-                    tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
-                    TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)), (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
-                    break;
-                }
-                case 0x09: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "++", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case KEY_BTAB: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "--", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case 10: {
-                    MenuWinClass::MeInAl = item_index(current_item(MenuWinClass::TOPMENU.HMMenu));
-                    StartMenuAuswahl(item_name(current_item(MenuWinClass::TOPMENU.UME.UMEMenu)));
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "++", 2);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break; }
-                }
-                if (MenuWinClass_MWC->TabKey == 1) {
-                    curs_set(false);
-                    ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    MenuWinClass::RefreshWindows();
-                } else if (MenuWinClass_MWC->TabKey == 2) {
-                    curs_set(false);
-                    MenuWinClass::RefreshWindows();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
-                    wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
-                } else if (MenuWinClass_MWC->TabKey == 3) {
-                    curs_set(true);
-                    mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass::PATTERN.c_str(), -1);
-                    MenuWinClass::RefreshWindows();
-                }
-                break;
-            } /* Hauptmenu */
-            case 3:{
-                int y,x;
-                getyx(MenuWinClass::START.TMPWin3, y, x);
-                int curposi = (x - 33);
-                switch (Key) {
-                case '?':{ ServiceClass_MWC->Statusabfrage(ABOUT_INFO); break; }
-                case 27:{ break; }
-                case 127:
-                case KEY_BACKSPACE:{
-                    MenuWinClass::PATTERN = ServiceClass_MWC->SearchDriver(REQ_DEL_BACKSPACE, MenuWinClass::START.TMPWin3, Key, MenuWinClass::PATTERN, curposi);
-                    break; }
-                case KEY_DC:{
-                    MenuWinClass::PATTERN = ServiceClass_MWC->SearchDriver(REQ_DEL_DC, MenuWinClass::START.TMPWin3, Key, MenuWinClass::PATTERN, curposi);
-                    break; }
-                case KEY_RIGHT:{
-                    MenuWinClass::PATTERN = ServiceClass_MWC->SearchDriver(REQ_RIGHT, MenuWinClass::START.TMPWin3, Key, MenuWinClass::PATTERN, curposi);
-                    break; }
-                case KEY_LEFT:{
-                    MenuWinClass::PATTERN = ServiceClass_MWC->SearchDriver(REQ_LEFT, MenuWinClass::START.TMPWin3, Key, MenuWinClass::PATTERN, curposi);
-                    break; }
-                case 0x09: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(3, "++", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case KEY_BTAB: {
-                    MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(3, "--", 3);
-                    set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    break;
-                }
-                case KEY_ENTER:
-                case 10:{ break; }
-                default:{
-                    if (Key > 10 && Key < 128) {
-                        MenuWinClass::PATTERN = ServiceClass_MWC->SearchDriver(REQ_INS_DEFAULT, MenuWinClass::START.TMPWin3, Key, MenuWinClass::PATTERN, curposi);
-                        //ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_NEXT_MATCH);
-                    }
-                    break; }
-                }
-                if (MenuWinClass_MWC->TabKey == 1) {
-                    curs_set(false);
-                    ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
-                    MenuWinClass::TOPMENU.LoescheUME();
-                    MenuWinClass::RefreshWindows();
-                } else if (MenuWinClass_MWC->TabKey == 2) {
-                    curs_set(false);
-                    MenuWinClass::RefreshWindows();
-                    wrefresh(MenuWinClass::START.TMPWin1);
-                    redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
-                    wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
-                } else if (MenuWinClass_MWC->TabKey == 3) {
-                    curs_set(true);
-                    MenuWinClass::RefreshWindows();
-                }
-                break;
-            }/* search at tmpwin3 */
             }
-            if (Key == KEY_F(10)) { break; }
+            case 9: {
+                MenuWinClass_MWC->TabKey++;
+                //MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(1, "++", 3);
+                MenuWinClass::START.TMPWIN = TempWin("Datei", DATEIMENU);
+                redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
+                wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
+                break; }
+            case KEY_ENTER:
+            case 10: {
+                string menupoint = MenuWinClass::SERVICEMENU.AktivName;
+                string befehl = "systemctl status " + menupoint;
+                ServiceClass_MWC->Statusabfrage(TaskClass_MWC->TERM_AUSGABE(befehl));
+                break; }
+            case 32: { ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_TOGGLE_ITEM); break; }
+            case KEY_BACKSPACE: { ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_BACK_PATTERN); break; }
+            case KEY_DOWN: {
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_DOWN_ITEM);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            case KEY_UP: {
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_UP_ITEM);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            case KEY_NPAGE: {
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_SCR_DPAGE);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            case KEY_PPAGE: {
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_SCR_UPAGE);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            case KEY_END: {
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_LAST_ITEM);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            case KEY_HOME: {
+                ServiceClass_MWC->ListStart = 0;
+                ServiceClass_MWC->selected = 0;
+                ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_FIRST_ITEM);
+                ServiceClass_MWC->TableMoveRow();
+                break;
+            }
+            default: { if (Key > 32 && Key < 126) {
+                    //ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_NEXT_MATCH);
+                    break; } }
+            }
+            if (MenuWinClass_MWC->TabKey == MainTab1) {
+                curs_set(false);
+                ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
+                MenuWinClass::TOPMENU.LoescheUME();
+                MenuWinClass::RefreshWindows();
+            } else if (MenuWinClass_MWC->TabKey == MainTab2) {
+                curs_set(false);
+                MenuWinClass::RefreshWindows();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
+                wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
+            } else if (MenuWinClass_MWC->TabKey == MainTab3) {
+                curs_set(true);
+                MenuWinClass::RefreshWindows();
+                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_MWC->SearchPattern.c_str(), -1);
+                wrefresh(MenuWinClass::START.TMPWin3);
+            }
+            break;
+        } /* MainWindow ListMenu */
+        case MainTab2: {
+            switch (Key) {
+            case '?': { ServiceClass_MWC->Statusabfrage(HELP_INFO); break; }
+            case 353: {
+                MenuWinClass_MWC->TabKey--;
+                //MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "--", 3);
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break;
+            }
+            case 9: {
+                MenuWinClass_MWC->TabKey++;
+                //MenuWinClass_MWC->TabKey = TaskClass_MWC->ZahlenWerk(2, "++", 3);
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break;
+            }
+            case KEY_ENTER:
+            case 10: {
+                MenuWinClass::TOPMENU.MeInAl = item_index(current_item(MenuWinClass::TOPMENU.HMMenu));
+                StartMenuAuswahl(item_name(current_item(MenuWinClass::TOPMENU.UME.UMEMenu)));
+                MenuWinClass_MWC->TabKey++; // = TaskClass_MWC->ZahlenWerk(2, "++", 2);
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break; }
+            /*case 27: {
+                MenuWinClass_MWC->TabKey--;
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break; }*/
+            case KEY_DOWN: { menu_driver(TOPMENU.UME.UMEMenu, REQ_DOWN_ITEM); break; }
+            case KEY_UP: { menu_driver(TOPMENU.UME.UMEMenu, REQ_UP_ITEM); break; }
+            case KEY_LEFT: {
+                MenuWinClass::TOPMENU.LoescheUME(); // delete before menu drive
+                menu_driver(MenuWinClass::TOPMENU.HMMenu, REQ_LEFT_ITEM);
+                tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
+                MenuWinClass::START.TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)),
+                                                     (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
+                break; }
+            case KEY_RIGHT: {
+                MenuWinClass::TOPMENU.LoescheUME();
+                menu_driver(MenuWinClass::TOPMENU.HMMenu, REQ_RIGHT_ITEM);
+                tmpMeNa = string(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)));
+                MenuWinClass::START.TMPWIN = TempWin(item_name(current_item(MenuWinClass::TOPMENU.HMMenu)),
+                                                     (MenuID)item_index(current_item(MenuWinClass::TOPMENU.HMMenu)));
+                break;}
+            }
+            if (MenuWinClass_MWC->TabKey == MainTab1) {
+                curs_set(false);
+                ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
+                MenuWinClass::TOPMENU.LoescheUME();
+                MenuWinClass::RefreshWindows();
+            } else if (MenuWinClass_MWC->TabKey == MainTab2) {
+                curs_set(false);
+                MenuWinClass::RefreshWindows();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
+                wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
+            } else if (MenuWinClass_MWC->TabKey == MainTab3) {
+                curs_set(true);
+                MenuWinClass::RefreshWindows();
+                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_MWC->SearchPattern.c_str(), -1);
+                wrefresh(MenuWinClass::START.TMPWin3);
+            }
+            break;
+        } /* Hauptmenu */
+        case MainTab3:{
+            int wcx = getcurx(MenuWinClass::START.TMPWin3);
+            int curposi = (wcx - 33);
+            switch (Key) {
+            case 353:{
+                MenuWinClass_MWC->TabKey--;
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break; }
+            case 9:{
+                MenuWinClass_MWC->TabKey++;
+                set_current_item(MenuWinClass::TOPMENU.HMMenu, MenuWinClass::TOPMENU.HMItem[0]);
+                MenuWinClass::TOPMENU.LoescheUME();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                break; }
+            case KEY_ENTER:
+            case 10:{ break; }
+            case 27:{ MenuWinClass_MWC->SearchPattern = "";
+                int MaxSearchChar = (MenuWinClass::START.WCX() - (MenuWinClass::SucheStartWCX + MenuWinClass::START.BorderWeight));
+                MenuWinClass_MWC->Dummy.assign(MaxSearchChar, ' ');
+                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, MenuWinClass_MWC->SucheStartWCX, MenuWinClass_MWC->Dummy.c_str(), -1);
+                mvwaddnstr(MenuWinClass::START.TMPWin3, 4, 33, MenuWinClass_MWC->SearchPattern.c_str(), -1);
+                wrefresh(MenuWinClass::START.TMPWin3);
+                break; }
+            case '?':{ ServiceClass_MWC->Statusabfrage(HELP_INFO); break; }
+            case KEY_BACKSPACE:{
+                MenuWinClass_MWC->SearchPattern = ServiceClass_MWC->SearchDriver(REQ_DEL_BACKSPACE, MenuWinClass::START.TMPWin3, Key, MenuWinClass_MWC->SearchPattern, curposi);
+                break; }
+            case KEY_DC:{
+                MenuWinClass_MWC->SearchPattern = ServiceClass_MWC->SearchDriver(REQ_DEL_DC, MenuWinClass::START.TMPWin3, Key, MenuWinClass_MWC->SearchPattern, curposi);
+                break; }
+            case KEY_LEFT:{
+                MenuWinClass_MWC->SearchPattern = ServiceClass_MWC->SearchDriver(REQ_LEFT, MenuWinClass::START.TMPWin3, Key, MenuWinClass_MWC->SearchPattern, curposi);
+                break; }
+            case KEY_RIGHT:{
+                MenuWinClass_MWC->SearchPattern = ServiceClass_MWC->SearchDriver(REQ_RIGHT, MenuWinClass::START.TMPWin3, Key, MenuWinClass_MWC->SearchPattern, curposi);
+                break; }
+            default:{
+                if ((Key > 32 && Key < 126)) { // || (Key == 182 || Key == 150 || Key == 164 || Key == 132 || Key == 188 || Key == 156)) {
+                    MenuWinClass_MWC->SearchPattern = ServiceClass_MWC->SearchDriver(REQ_INS_DEFAULT, MenuWinClass::START.TMPWin3, Key, MenuWinClass_MWC->SearchPattern, curposi);
+                    //ServiceClass_MWC->TableDriver(ServiceClass_MWC->ServiceList, REQ_NEXT_MATCH);
+                }
+                break; }
+            }
+            if (MenuWinClass_MWC->TabKey == MainTab1) {
+                curs_set(false);
+                ServiceClass_MWC->INFOWINDOW(MenuWinClass::SERVICEMENU.AktivName);
+                MenuWinClass::TOPMENU.LoescheUME();
+                MenuWinClass::RefreshWindows();
+            } else if (MenuWinClass_MWC->TabKey == MainTab2) {
+                curs_set(false);
+                MenuWinClass::RefreshWindows();
+                wrefresh(MenuWinClass::START.TMPWin1);
+                redrawwin(MenuWinClass::TOPMENU.UME.UMEWin);
+                wrefresh(MenuWinClass::TOPMENU.UME.UMEWin);
+            } else if (MenuWinClass_MWC->TabKey == MainTab3) {
+                curs_set(true);
+                MenuWinClass::RefreshWindows();
+                wrefresh(MenuWinClass::START.TMPWin3);
+            }
+            break;
+        } /* search at tmpwin3 */
         }
+        if (Key == KEY_F(10)) { break; }
+    }
     return Key;
-//    } catch (const NCursesException* e) { endwin(); std::cerr << e->message << std::endl; cout << e->errorno; return -1;
-//    } catch (const NCursesException& e) { endwin(); std::cerr << e.message << std::endl; cout << e.errorno; return -1;
-//    } catch (const std::exception& e)   { endwin(); std::cerr << "Exception: " << e.what() << std::endl; cout << EXIT_FAILURE; return -1; }
+    //    } catch (const NCursesException* e) { endwin(); std::cerr << e->message << std::endl; cout << e->errorno; return -1; }
+    //    catch (const NCursesException& e)   { endwin(); std::cerr << e.message << std::endl; cout << e.errorno; return -1; }
+    //    catch (const std::exception& e)     { endwin(); std::cerr << "Exception: " << e.what() << std::endl; cout << EXIT_FAILURE; return -1; }
 } /* Menü surf funktion */
 
-MenuWinClass::~MenuWinClass(){
-    if (MenuWinClass::START.TMPWin1) {werase(MenuWinClass::START.TMPWin1); delwin(MenuWinClass::START.TMPWin1); endwin();}
-    if (MenuWinClass::START.TMPWin2) {werase(MenuWinClass::START.TMPWin2); delwin(MenuWinClass::START.TMPWin2); endwin();}
-    if (MenuWinClass::START.TMPWin3) {werase(MenuWinClass::START.TMPWin3); delwin(MenuWinClass::START.TMPWin3); endwin();}
-    if (MenuWinClass::START.TMPWin4) {werase(MenuWinClass::START.TMPWin4); delwin(MenuWinClass::START.TMPWin4); endwin();}
-    if (MenuWinClass::START.TMPWin5) {werase(MenuWinClass::START.TMPWin5); delwin(MenuWinClass::START.TMPWin5); endwin();}
-}
 
+
+MenuWinClass::~MenuWinClass(){
+    if (MenuWinClass::START.TimeWin) {werase(MenuWinClass::START.TimeWin); delwin(MenuWinClass::START.TimeWin); endwin();}
+    if (MenuWinClass::SERVICEMENU.LMItem) {unpost_menu(MenuWinClass::SERVICEMENU.LMenu); SAFE_DELETE(MenuWinClass::SERVICEMENU.LMItem); SAFE_DELETE_ARRAY(MenuWinClass::SERVICEMENU.LMItem);}
+    if (MenuWinClass::TOPMENU.UME.UMEItem) { unpost_menu(MenuWinClass::TOPMENU.UME.UMEMenu); SAFE_DELETE(MenuWinClass::TOPMENU.UME.UMEItem); SAFE_DELETE_ARRAY(MenuWinClass::TOPMENU.UME.UMEItem);}
+    if (MenuWinClass::TOPMENU.HMItem) { unpost_menu(MenuWinClass::TOPMENU.HMMenu); SAFE_DELETE(MenuWinClass::TOPMENU.HMItem); SAFE_DELETE_ARRAY(MenuWinClass::TOPMENU.HMItem);}
+    if (MenuWinClass::START.TMPWin5) {werase(MenuWinClass::START.TMPWin5); delwin(MenuWinClass::START.TMPWin5); endwin();}
+    if (MenuWinClass::START.TMPWin4) {werase(MenuWinClass::START.TMPWin4); delwin(MenuWinClass::START.TMPWin4); endwin();}
+    if (MenuWinClass::START.TMPWin3) {werase(MenuWinClass::START.TMPWin3); delwin(MenuWinClass::START.TMPWin3); endwin();}
+    if (MenuWinClass::START.TMPWin2) {werase(MenuWinClass::START.TMPWin2); delwin(MenuWinClass::START.TMPWin2); endwin();}
+    if (MenuWinClass::START.TMPWin1) {werase(MenuWinClass::START.TMPWin1); delwin(MenuWinClass::START.TMPWin1); endwin();}
+    werase(stdscr);
+    ServiceList.clear();
+    vector<SERVICES>(ServiceList).swap (ServiceList);
+    clear();
+}
 
