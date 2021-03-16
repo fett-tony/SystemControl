@@ -9,6 +9,7 @@ using namespace std;
 
 enum WinID { MENUWIN = 0, MAINWIN = 1, INFOWIN = 2, LISTPAD = 3, DESCWIN = 4, TIMEWIN = 5, ENDWIN = 6 };
 enum MenuID { DATEIMENU = 0, DAEMONMENU = 1, SYSTEMCTLMENU = 2, INFOMENU = 3, MAINMENU = 4, ENDMENU = 5 };
+enum TabID { MainTab1 = 1, MainTab2 = 2, MainTab3 = 3 };
 
 struct FENSTER   {
     int     FEID         {0};
@@ -41,6 +42,8 @@ struct FENSTER   {
     int     WCXtime()    {return static_cast<int>(roundf(20));};
     WinID   TimeWinID    {TIMEWIN};
     WINDOW  *TimeWin     = newwin(HRYtime(), WCXtime(), 0, (WCX() - 20));
+    WINDOW  *TMPWIN;     /* Temporäres Window, zwischen speicher */
+    TabID   TabKeyHist[4] {MainTab3,MainTab1,MainTab2,MainTab3};   /*1. before 2. in use 3. next 4. after next*/
     int     TMPWinHigh   {0};
     FORM    *TMPForm1    {nullptr};
     FIELD   **TMPField1  {nullptr};
@@ -122,6 +125,8 @@ struct HAUPTMENU {
     string  HMName;
     MENU   *HMMenu {nullptr};
     ITEM  **HMItem {nullptr};
+    MENU   *TMPMENU; /* Temporärer Menu zwischen speicher */
+    int     MeInAl {0};
     //###############################################
     struct UNTERMENU {
         int       UMID;
@@ -151,29 +156,27 @@ struct HAUPTMENU {
     }
 };
 struct INAPPMENU {
-    friend class MenuWinClass;
-    int                LMID;
-    std::string      LMName;
-    MENU*   LMenu {nullptr};
+    int    LMID;
+    string LMName;
+    MENU*  LMenu {nullptr};
     ITEM** LMItem {nullptr};
     string AktivName = "";
-
+    friend class MenuWinClass;
 };
 
-class MenuWinClass: public INAPPMENU {
+class MenuWinClass {
 public:
     /*################################################*/
     static FENSTER START;
     static HAUPTMENU TOPMENU;
-    static int MeInAl;
-    static WINDOW *TMPWIN;
-    static MENU *TMPMENU;
     static INAPPMENU SERVICEMENU;
-    static int LiMeInAl;
-    static WINDOW* LiTMPWIN;
-    static MENU* LiTMPMENU;
-    static string PATTERN;
-    static int TabKey;// {1};
+    static TabID TabKey; // {1};
+    //############################
+    static const int SucheStartWCX = 33;
+    char SearchChar[BUFSIZ];
+    string SearchPattern;
+    string Dummy;
+    static int MenuStart(int Key);
     /*#############_WINDOW_###########################*/
     static void StartWin();
     static void StopWin();
@@ -193,7 +196,6 @@ public:
     static WINDOW* TempWin(string Name, MenuID MID);
     static void StartMenuAuswahl(string wahl);
     static void RefreshWindows();
-    static int MenuStart(int Key);
     /*#############_Constructor/De_###################*/
     MenuWinClass();
     ~MenuWinClass();

@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console c++17
+CONFIG += console c++21
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -80,22 +80,19 @@ unix:!macx: LIBS += -lncurses++w -Wall -lncursesw -lmenuw -lmenu -lformw -lpanel
 ###########################################################################
 
 SOURCES += \
-#        MenuClass.cpp \
-#		WinClass.cpp \
         MenuWinClass.cpp \
         ServiceClass.cpp \
-        Start.cpp \
+	ServiceControl.cpp \
 		TaskClass.cpp
 
 
 HEADERS += \
     Info.h \
-#	WinClass.h \
-#    MenuClass.h \
     MenuWinClass.h \
     ServiceClass.h \
 	TaskClass.h
 
 DISTFILES += \
+	systemd.txt \
 	zeug.txt
 

@@ -15,7 +15,7 @@ int main (int argc, char* argv[]) {
 //try {
     if (argc > 1) {
         if (string(argv[1]).compare("-h")) {
-            cout << ABOUT_INFO << " " << VERSION << endl;
+            cout << HELP_INFO << " " << VERSION << endl;
             return 0;
             exit(EXIT_SUCCESS);
         } else {
@@ -43,12 +43,12 @@ int main (int argc, char* argv[]) {
     wrefresh(TaskClassS->ClearWindow(MenuWinClass::START.TMPWin3));
     touchwin(TaskClassS->ClearWindow(MenuWinClass::START.TMPWin3));
     prefresh(MenuWinClass::START.TMPWin4, 0, 0, 2, 1, MenuWinClass::START.HRYw4() + 1, MenuWinClass::START.WCXw4());
-    prefresh(MenuWinClass::START.TMPWin5, 0, 0, MenuWinClass::START.HRY()-4,
-             MenuWinClass::START.WCX()-46, MenuWinClass::START.HRYw5(), MenuWinClass::START.WCXw5());
+//    prefresh(MenuWinClass::START.TMPWin5, 0, 0, MenuWinClass::START.HRY()-4,
+//             MenuWinClass::START.WCX()-46, MenuWinClass::START.HRYw5(), MenuWinClass::START.WCXw5());
     redrawwin(TaskClassS->ClearWindow(MenuWinClass::START.TMPWin1));
     wrefresh(TaskClassS->ClearWindow(MenuWinClass::START.TMPWin1));
 
-    do { Key = MenuWinClass::MenuStart(Key); if (Key == KEY_F(10)) { break; } } while ((Key = getch()) != KEY_F(10));
+    do { Key = MenuWinClass::MenuStart(Key); if (Key == KEY_F(10)) { break; }; } while ((Key = getch()) != KEY_F(10));
 
     ServiceClassS->ENDE();
     MenuWinClassS->StopWin();
