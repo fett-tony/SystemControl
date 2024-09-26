@@ -1,7 +1,9 @@
 ﻿#ifndef SERVICECLASS_H
 #define SERVICECLASS_H
 
-#include <src/TaskClass.h>
+#include <TaskClass.h>
+#include <MenuWinClass.h>
+#include <Info.h>
 
 //enum _INPUT_FOR {
 //    INPUT_FOR_LIST,
@@ -11,6 +13,7 @@
 #define ERR_PREFIX "Failed: "
 #define SYSV_INSTALL_EXEC "/lib/systemd/systemd-sysv-install"
 
+enum SeaReq { REQ_RIGHT, REQ_LEFT, REQ_DEL_DC, REQ_DEL_BACKSPACE, REQ_INS_DEFAULT};
 enum {
     UNIT_STATE_DISABLED = 0x01,
     UNIT_STATE_ENABLED = 0x02,
@@ -31,7 +34,6 @@ enum {
     UNIT_ACTIVESTATE_ACTIVE = 0x11,
     UNIT_ACTIVESTATE_INACTIVE = 0x12
 };
-
 enum STATE_FLAGS {
     STATE_FLAGS_ENABLE,
     STATE_FLAGS_DISABLE,
@@ -43,10 +45,10 @@ struct SignalColor {
     int Yellow  {38}; //Warn or fails
     int Green   {28}; //infoS
     int White   {78}; //all all right
-    void SetSignalColor(int RED = 18, int YELLOW = 38, int GREEN = 28, int WHITE = 78){Red = RED; Yellow = YELLOW; Green = GREEN; White = WHITE;};
+    void SetSignalColor(int RED = 18, int YELLOW = 38, int GREEN = 28, int WHITE = 78) {Red = RED; Yellow = YELLOW; Green = GREEN; White = WHITE;};
 };
 
-typedef struct SERVICES SERVICES;
+//typedef struct SERVICES SERVICES;
 struct SERVICES {
     int SID;
     std::string Name;
@@ -61,50 +63,42 @@ struct SERVICES {
     std::string Active;
     int substate;
     std::string SubStatus;
-    SERVICES* next;
 };
 
-
-class ServiceClass
-{
+class ServiceClass {
 public:
-    ServiceClass();
-    ~ServiceClass();
-    WINDOW                  *STATUSWIN;
-    WINDOW                 *STATUSINFO;
-    WINDOW                *ServiceInfo;
-    std::string          systemctlwahl;
-    void        ServiceFensterDesign();
-    void             ServiceListFill();
-    void                ServiceListe();
-    void  INFOWINDOW(std::string Name);
-    void Statusabfrage(std::string ausgabestatus);
-    void                    ENDE_NEW();
-    int         StartServiceControll();
-    //##########MENÜ################################
-    std::vector<SERVICES>  ServiceList;
-    WINDOW              *ListMenuPanel;
-    MENU                     *ListMenu;
-    ITEM                **ListMenuItem;
-    //#####################################################
+    /*#####################################################*/
+    vector<SERVICES> ServiceList;
+    WINDOW *STATUSWIN;
+    WINDOW *STATUSINFO;
+    string  systemctlwahl;
+    /*#####################################################*/
     SignalColor StateColor;
     char searchString[BUFSIZ] = "";
     unsigned char inputFor = 0;
     int lastFound = 0;
-    int selected = 0;
-    int start = 0;
-    //unsigned long selected = 0;
-    //unsigned long start = 0;
-    std::string AktivName {""};
-    void tabledriver(std::vector<SERVICES> SRVLIST,int key);
-    void SetStateOption(); //SERVICES unit
-    void TableDraw(SERVICES unit, int y);
-    void TableMoveRow();
+    int selected  = 0;
+    int start     = 0;
+    string AktivName {""};
+    /*#####################################################*/
+    void ServiceListFill();
+    void ServiceListe();
+    void INFOWINDOW(string Name);
+    void Statusabfrage(string ausgabestatus);
+    void ENDE();
+    /*#####################################################*/
+    void SetStateOption(); /*SERVICES unit*/
     void BuildWin();
+    void TableMoveRow();
+    void TableDraw(SERVICES unit, int y);
+    void TableDriver(vector<SERVICES> SRVLIST, int key);
+    void moveTo(int position);
     void searchInput();
     void drawSearch();
-    void moveTo(int position);
-
+    string SearchDriver(SeaReq drv, WINDOW *Win, int Key, string Search, int Posi);
+    /*#####################################################*/
+    ServiceClass();
+    ~ServiceClass();
 };
 
 

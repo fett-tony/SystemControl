@@ -1,12 +1,14 @@
 # ServiceControl
 
-systemctl is the basic. ServiceControl this is a Qt creator project!
+chkservice is the basis for ServiceControl.
 
-also download Qt Creator.
+This is a Qt Creator project!
 
-This is a Qt Creator Projekt for run you musst set two options.
+Also download Qt Creator.
 
-That is the clock jump of my development and also consists of parts of this preliminary work.
+You need to set two options before you can begin.
+
+That is the clock leap in my development and also consists of parts of this preliminary work.
 
 chkservice can be installed on Ubuntu with:
 
@@ -18,21 +20,22 @@ https://github.com/hflautert/chkservices
 
 https://github.com/linuxenko/chkservice
 
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControll-v1.0.2.png)
+![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/ServiceControl_v1.0.4/Screenshot/ServiceControl_v1.0.4.png)
 
+![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/ServiceControl_v1.0.4/Screenshot/ServiceControl_v1.0.4_2.png)
 
-# 1. the first option is shadowbuild muss off.
+# 1. The first option is Shadowbuild Must Off.
 
-this is while this projekt have own options into the pro file and work with a special folder set.
+This has to be done because this project has a special folder system for the build.
 
 ![ShadowBuild](https://github.com/fett-tony/NcursesWindowTemplate/blob/main/README/ShadowBuild.png)
 
-# 2. the second option for debugger
+# 2. The second option is for the debugger
 
 when you need to work with threads or pthread you must set SIGSTOP options off.
 for running with thread or pthread option
 
-you musst set "handle SIGSTOP pass nostop noprint" into the Debugger option for "Locals & Expressions".
+you must set "handle SIGSTOP pass nostop noprint" into the Debugger option for "Locals & Expressions".
 
 > TOOLS -> Options -> Debugger -> Locals & Expressions -> Debugging Helper Customization
 
@@ -41,8 +44,3 @@ you musst set "handle SIGSTOP pass nostop noprint" into the Debugger option for 
 ![Debugging_Helper_Customization](https://github.com/fett-tony/NcursesWindowTemplate/blob/main/README/Debugging_Helper_Customization.png)
 
 
-
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-1.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-2.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControl-3.png)
-![ServiceControl](https://github.com/fett-tony/ServiceControl/blob/main/Screenshot/ServiceControll-branch.png)
